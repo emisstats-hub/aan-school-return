@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>School Statistics Return 2026/2027 — GES Asante Akyem North</title>
+<meta name="description" content="Annual school data return for Basic and Second Cycle schools, Asante Akyem North Municipal Education Directorate.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{
+  --navy:#10213f; --navy-2:#1b3261; --maroon:#a8322d; --maroon-soft:#f8e7e5;
+  --gold:#c9a13b; --gold-soft:#fbf3de; --green:#2f7a4b; --green-soft:#e6f3ea;
+  --blue-soft:#e8eef8; --bg:#f7f2e8; --card:#fff; --ink:#1d2433; --muted:#5d6678;
+  --line:#e3dccd; --field:#fdfbf7; --danger:#b3261e; --ok:#2f7a4b;
+  --radius:14px; --shadow:0 1px 2px rgba(16,33,63,.06),0 4px 16px rgba(16,33,63,.06);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:120px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Source Sans 3",system-ui,sans-serif}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
+button,input,select{font:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* header */
+.hero{background:var(--navy);color:#fff;text-align:center;padding:28px 16px 34px}
+.hero img{width:78px;height:78px;border-radius:50%;background:#fff;padding:3px;display:block;margin:0 auto 10px}
+.hero .org{color:var(--gold);font-weight:700;letter-spacing:.2px}
+.hero .dir{color:#c9d3e6;font-size:14px;margin-top:2px}
+.hero h1{font-size:clamp(26px,4.5vw,40px);margin:10px 0 8px}
+.hero p{max-width:560px;margin:0 auto;color:#d5dcea}
+.clock{background:var(--gold-soft);color:#8a6512;text-align:center;font-weight:600;padding:9px;border-bottom:1px solid var(--line);font-size:15px}
+.clock::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#9bb59f;margin-right:8px;vertical-align:middle}
+
+.actions{background:#eaf0f8;border-bottom:1px solid var(--line);padding:14px 0}
+.actions .wrap{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #c6d1e4;background:#fff;color:var(--navy);
+  font-weight:700;border-radius:999px;padding:10px 20px;cursor:pointer}
+.pill:hover{border-color:var(--navy)}
+.pill .badge{background:var(--navy);color:#fff;border-radius:999px;padding:1px 10px;font-size:14px}
+.pill.edit{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.pill svg{width:18px;height:18px}
+
+/* type chooser */
+.chooser{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:26px 0 8px}
+.choice{border:2px solid var(--line);background:#fff;border-radius:var(--radius);padding:16px 18px;cursor:pointer;text-align:left;
+  display:flex;gap:14px;align-items:center;transition:.15s}
+.choice:hover{border-color:#c9b98f}
+.choice.on{border-color:var(--navy);box-shadow:0 0 0 3px rgba(16,33,63,.1)}
+.choice .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:var(--blue-soft);color:var(--navy);flex:none}
+.choice.on .ic{background:var(--navy);color:#fff}
+.choice b{display:block;font-size:17px;color:var(--navy)}
+.choice span{font-size:14px;color:var(--muted)}
+
+/* sticky progress */
+.progress{position:sticky;top:0;z-index:20;background:rgba(247,242,232,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:12px 0 10px}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{border:1.5px solid #e2b9b5;background:#fff;color:var(--maroon);border-radius:999px;padding:7px 16px;font-weight:700;font-size:15px;cursor:pointer;display:inline-flex;gap:10px;align-items:center}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip i{font-style:normal;opacity:.75;font-size:14px}
+.chip.active{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+.chip.done{border-color:#9cc9aa;color:var(--green)}
+.chip.done.active{background:var(--green);color:#fff}
+.bar{display:flex;align-items:center;gap:14px;margin-top:10px}
+.bar .track{flex:1;height:6px;background:#e6dfd1;border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--maroon),var(--gold));transition:width .3s}
+.bar b{font-size:15px;min-width:42px;text-align:right}
+
+/* edit banner */
+.editbar{display:none;margin:18px 0 0;background:var(--gold-soft);border:1px solid #e6cf8f;border-radius:12px;padding:12px 16px;
+  align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#6d500d}
+.editbar.show{display:flex}
+.editbar button{background:none;border:1px solid #c9a13b;border-radius:8px;padding:6px 12px;color:#6d500d;font-weight:600;cursor:pointer}
+
+/* sections */
+.section{background:var(--card);border:1px solid var(--line);border-radius:18px;margin:22px 0;box-shadow:var(--shadow);overflow:hidden}
+.sec-head{display:flex;gap:16px;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line)}
+.sec-ic{position:relative;width:58px;height:58px;border-radius:14px;border:2px solid currentColor;display:grid;place-items:center;flex:none;background:#fff}
+.sec-ic svg{width:24px;height:24px}
+.sec-ic em{position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:var(--tone);color:#fff;font:700 12px/24px "Source Sans 3";text-align:center;font-style:normal}
+.sec-head h2{font-size:23px}
+.sec-head p{margin:2px 0 0;color:var(--muted)}
+.t-red{--tone:var(--maroon)}
+.t-red .sec-head{background:#fbeeee} .t-red .sec-ic,.t-red h2{color:var(--maroon)}
+.t-blue{--tone:var(--navy-2)}
+.t-blue .sec-head{background:#edf2fa} .t-blue .sec-ic,.t-blue h2{color:var(--navy-2)}
+.t-gold{--tone:#8a5a12}
+.t-gold .sec-head{background:#fcf5e6} .t-gold .sec-ic,.t-gold h2{color:#8a5a12}
+.t-green{--tone:var(--green)}
+.t-green .sec-head{background:#ecf6ef} .t-green .sec-ic,.t-green h2{color:var(--green)}
+.t-plum{--tone:#6b3a86}
+.t-plum .sec-head{background:#f4eef7} .t-plum .sec-ic,.t-plum h2{color:#6b3a86}
+.sec-body{padding:22px 24px 8px}
+.subhead{display:flex;align-items:center;gap:14px;margin:6px 0 16px;font-family:Fraunces,serif;font-weight:700;font-size:18px;color:var(--navy)}
+.subhead::before{content:"";width:40px;height:3px;background:var(--gold);border-radius:3px}
+.subhead::after{content:"";flex:1;height:1px;background:var(--line)}
+.note{background:#eef3fa;border:1px solid #d3deef;border-radius:12px;padding:12px 16px;margin-bottom:18px;color:#34425e;font-size:15px}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 28px}
+.f{margin-bottom:18px;min-width:0}
+.f.hide{display:none}
+.f.span2{grid-column:span 2}
+.f label{display:inline-block;background:var(--blue-soft);color:var(--navy);font-weight:700;font-size:15px;border-radius:7px;padding:3px 12px;margin-bottom:8px}
+.f label .req{color:var(--gold);margin-left:3px}
+.f input,.f select{width:100%;height:52px;border:1px solid #d8d2c4;border-radius:10px;background:var(--field);padding:0 16px;color:var(--ink);font-size:17px;outline:none;transition:.15s}
+.f select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%231d2433' stroke-width='2.4'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
+.f input:focus,.f select:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,50,97,.12);background:#fff}
+.f input[readonly]{background:#f1ede4;color:#4a5263}
+.f .hint{font-size:14px;color:var(--muted);font-style:italic;margin-top:6px;line-height:1.35}
+.f.bad input,.f.bad select{border-color:var(--danger);background:#fff7f6}
+.f .err{display:none;color:var(--danger);font-size:14px;margin-top:5px;font-weight:600}
+.f.bad .err{display:block}
+.f.good input,.f.good select{border-color:#9cc9aa}
+
+.submit{width:100%;height:64px;border:0;border-radius:14px;background:#9aa0ab;color:#fff;font-weight:700;font-size:20px;cursor:not-allowed;
+  display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0 26px;transition:.2s}
+.submit.ready{background:var(--navy);cursor:pointer}
+.submit.ready:hover{background:var(--navy-2)}
+.submit svg{width:22px;height:22px}
+.foot{text-align:center;padding:0 0 40px}
+.foot span{display:inline-block;border:1px solid #e6cf8f;background:var(--gold-soft);color:#7a5a12;border-radius:999px;padding:10px 22px;font-weight:600;box-shadow:var(--shadow)}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,20,40,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.show{display:flex}
+.box{background:#fff;border-radius:18px;max-width:560px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.box.wide{max-width:880px}
+.box-h{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.box-h h3{font-size:21px;color:var(--navy)}
+.x{background:none;border:0;font-size:26px;line-height:1;cursor:pointer;color:var(--muted)}
+.box-b{padding:20px 22px}
+.box-b .f input,.box-b .f select{height:48px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.btn{border:0;border-radius:10px;padding:12px 20px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff;display:inline-flex;gap:8px;align-items:center}
+.btn.alt{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.btn.gold{background:var(--gold);color:#241a02}
+.btn:disabled{opacity:.6;cursor:wait}
+.msg{border-radius:10px;padding:10px 14px;margin:0 0 14px;font-size:15px;display:none}
+.msg.show{display:block}
+.msg.err{background:#fdecea;color:#8c1d15;border:1px solid #f3c1bb}
+.msg.ok{background:var(--green-soft);color:#1f5634;border:1px solid #b9dcc4}
+.success{text-align:center}
+.success .tick{width:70px;height:70px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;margin:4px auto 12px}
+.success .ref{font:700 20px/1.3 ui-monospace,Consolas,monospace;background:var(--bg);border:1px dashed #cdbf9d;border-radius:10px;padding:10px;margin:12px 0;color:var(--navy)}
+.success p{color:var(--muted);margin:6px 0}
+.success .btns{justify-content:center;margin-top:16px}
+table.list{width:100%;border-collapse:collapse;font-size:15px}
+table.list th{text-align:left;background:var(--navy);color:#fff;padding:9px 10px;position:sticky;top:0}
+table.list td{padding:8px 10px;border-bottom:1px solid var(--line)}
+table.list tr:nth-child(even) td{background:#fbf8f2}
+.search{width:100%;height:44px;border:1px solid #d8d2c4;border-radius:10px;padding:0 14px;margin-bottom:12px}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:600;color:var(--navy)}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:12px;z-index:60;transition:.3s;box-shadow:var(--shadow);max-width:92vw}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.setup-warn{background:#fff4d6;border-bottom:1px solid #e7c96b;color:#6b4f00;text-align:center;padding:8px 16px;font-size:14px}
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media (max-width:900px){.grid{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){
+  .wrap{padding:0 14px}
+  .grid{grid-template-columns:1fr}.f.span2{grid-column:auto}
+  .chooser{grid-template-columns:1fr}
+  .sec-head{padding:16px}.sec-body{padding:18px 16px 4px}
+  .sec-head h2{font-size:20px}
+  .chip{padding:6px 12px;font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div id="setupWarn" class="setup-warn" hidden>Setup needed: paste your Google Apps Script Web App URL into <b>CONFIG.API_URL</b> in index.html. Submissions will not save until then.</div>
+
+<header class="hero">
+  <img src="logo.png" alt="GES logo" onerror="this.remove()">
+  <div class="org">Ghana Education Service</div>
+  <div class="dir" id="dirName"></div>
+  <h1>School Statistics Return <span id="yearLbl"></span></h1>
+  <p>For all Basic and Second Cycle schools in the Municipality. Each school completes this form <b>once</b>. Use <b>Edit / Update</b> to make corrections later.</p>
+</header>
+<div class="clock" id="clock"></div>
+
+<div class="actions">
+  <div class="wrap">
+    <button class="pill" id="btnList" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>
+      Submitted Schools <span class="badge" id="countBadge">–</span>
+    </button>
+    <button class="pill edit" id="btnEdit" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      Edit / Update Submission
+    </button>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="chooser" id="chooser">
+    <button type="button" class="choice on" data-type="basic">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg></span>
+      <span><b>Basic Schools</b><span>KG, Primary &amp; JHS</span></span>
+    </button>
+    <button type="button" class="choice" data-type="second">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 10-10-5-10 5 10 5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></span>
+      <span><b>Second Cycle Schools</b><span>SHS, SHTS, TVET &amp; STEM</span></span>
+    </button>
+  </div>
+
+  <div class="editbar" id="editBar">
+    <span>✎ You are editing the return for <b id="editRef"></b>. Change what you need, then press <b>Update Return</b>.</span>
+    <button type="button" id="cancelEdit">Cancel edit</button>
+  </div>
+</main>
+
+<div class="progress">
+  <div class="wrap">
+    <div class="chips" id="chips"></div>
+    <div class="bar"><div class="track"><div class="fill" id="fill"></div></div><b id="pct">0%</b></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <form id="form" novalidate autocomplete="off"></form>
+  <button class="submit" id="submitBtn" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+    <span id="submitLbl">Submit Return</span>
+  </button>
+  <div class="foot"><span id="footNote"></span></div>
+</main>
+
+<!-- Verify / edit modal -->
+<div class="modal" id="mVerify">
+  <div class="box">
+    <div class="box-h"><h3>Verify to view or edit</h3><button class="x" data-close>&times;</button></div>
+    <div class="box-b">
+      <div class="msg" id="vMsg"></div>
+      <p style="margin-top:0;color:var(--muted)">Enter the details used when the return was submitted. All three must match.</p>
+      <div class="f"><label>School Category<span class="req">*</span></label>
+        <select id="vType"><option value="basic">Basic School (KG, Primary, JHS)</option><option value="second">Second Cycle (SHS, SHTS, TVET, STEM)</option></select></div>
+      <div class="f"><label>School EMIS Code<span class="req">*</span></label><input id="vEmis" inputmode="numeric" placeholder="Numbers only"></div>
+      <div class="f"><label>Head's Staff ID<span class="req">*</span></label><input id="vStaff" placeholder="Staff ID of the Head"></div>
+      <div class="f"><label>Head's Date of Birth<span class="req">*</span></label><input id="vDob" type="date"></div>
+      <div class="btns" id="vBtns">
+        <button class="btn" id="vGo" type="button">Verify</button>
+      </div>
+      <div class="btns" id="vAfter" hidden>
+        <button class="btn" id="vEditBtn" type="button">✎ Edit this return</button>
+        <button class="btn gold" id="vPdfBtn" type="button">⬇ Download PDF copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success modal -->
+<div class="modal" id="mDone">
+  <div class="box">
+    <div class="box-h"><h3 id="doneTitle">Return submitted</h3><button class="x" data-close>&times;</button></div>
+    <div class="box-b success">
+      <div class="tick"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div><b id="doneSchool"></b></div>
+      <div class="ref" id="doneRef"></div>
+      <p>Keep this reference number. Download your PDF copy now for your records.</p>
+      <p>To edit later you will need the <b>EMIS Code</b>, the <b>Head's Staff ID</b> and <b>Date of Birth</b>.</p>
+      <div class="btns">
+        <button class="btn gold" id="donePdf" type="button">⬇ Download PDF copy</button>
+        <button class="btn alt" data-close type="button">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Submitted list modal -->
+<div class="modal" id="mList">
+  <div class="box wide">
+    <div class="box-h"><h3>Submitted Schools</h3><button class="x" data-close>&times;</button></div>
+    <div class="box-b">
+      <div class="tabs" id="listTabs">
+        <button class="on" data-f="all">All</button><button data-f="basic">Basic</button><button data-f="second">Second Cycle</button>
+      </div>
+      <input class="search" id="listSearch" placeholder="Search school or circuit…">
+      <div id="listBody">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   CONFIG — edit these values
+   ========================================================= */
+const CONFIG = {
+  API_URL: "https://script.google.com/macros/s/AKfycbxPbmcprE-INz148mFU4Ia7fSyKKEjuor26WUAvZVOqRr0F2yPqjokcMFyIKL57H6dU/exec",   // ← your Apps Script Web App URL
+  YEAR: "2026/2027",
+  MMDA: "Asante Akyem North Municipal",
+  DIRECTORATE: "Asante Akyem North Municipal Education Directorate",
+  CONTACT: "For any enquiries, contact the Municipal Statistics / EMIS Officer.",
+  // ← Replace with your actual circuit names
+  CIRCUITS: ["Agogo Central","Agogo East","Agogo North","Agogo West","Amantenaman","Ananekrom","Owerriman North","Owerriman South"]
+};
+
+/* =========================================================
+   FORM DEFINITIONS
+   ========================================================= */
+const O = {
+  model: ["Mainstream","Integrated","Special","STEM Only"],
+  affiliation: ["Public/Non-Religious (Government)","Religious (Mission/Faith-Based)","Private (Non-Religious)"],
+  ownership: ["Government/Public","Private"],
+  religion: ["Christianity","Islam","Traditional/African Indigenous Religion","Other"],
+  area: ["Urban","Rural","Peri-Urban"],
+  basicLevel: ["KG Only","Primary Only","JHS Only","KG & Primary","KG & JHS","Primary & JHS","Basic (KG, Primary & JHS)"],
+  secondLevel: ["SHS (General)","SHTS","TVET","STEM"],
+  residence: ["Day Only","Boarding Only","Day & Boarding"]
+};
+const has = (lvl, part) => !!lvl && (lvl.includes(part) || lvl.startsWith("Basic"));
+
+const ICONS = {
+  school:'<path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M22 20c0-3-2-5-5-5.4"/>',
+  clip:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
+  pin:'<path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>'
+};
+
+// helper builders for person blocks
+const person = (p, title, opts) => {
+  const o = Object.assign({ req:false, email:false, dob:false, staff:true }, opts||{});
+  const f = [{ sub:title, show:o.show },
+    { k:p+"_name", l:"Full Name", t:"text", req:o.req, show:o.show }];
+  if (o.staff) f.push({ k:p+"_staffId", l:"Staff ID", t:"staff", req:o.req, show:o.show,
+      h: o.dob ? "Used later with Date of Birth to verify identity for editing." : "" });
+  if (o.dob) f.push({ k:p+"_dob", l:"Date of Birth", t:"dob", req:true, show:o.show,
+      h:"Used only to verify identity for editing. Not printed on the PDF." });
+  f.push({ k:p+"_phone", l:"Telephone Number", t:"tel", req:o.req, show:o.show });
+  if (o.email) f.push({ k:p+"_email", l: o.emailLabel || "Email Address", t:"email", req:o.req, show:o.show });
+  return f;
+};
+
+function identFields(levelOpts, extra){
+  return [
+    { k:"mmda", l:"MMDA Name", t:"fixed", v:CONFIG.MMDA, req:true },
+    { k:"schoolName", l:"School Name", t:"text", req:true, cls:"span2", h:"Official name as registered with GES." },
+    { k:"circuit", l:"Circuit", t:"select", o:CONFIG.CIRCUITS, req:true },
+    { k:"emisCode", l:"School EMIS Code", t:"emis", req:true, h:"Numbers only. Also used to verify identity for editing." },
+    { k:"schoolEmail", l:"School Email", t:"email", req:true },
+    { k:"model", l:"School Model", t:"select", o:O.model, req:true },
+    { k:"level", l:"Level", t:"select", o:levelOpts, req:true },
+    ...(extra||[]),
+    { k:"affiliation", l:"Affiliation Type", t:"select", o:O.affiliation, req:true },
+    { k:"ownership", l:"Ownership Type", t:"select", o:O.ownership, req:true },
+    { k:"religion", l:"School Religion", t:"select", o:O.religion, req:true },
+    { k:"religionOther", l:"Specify Other Religion", t:"text", req:true, show:d=>d.religion==="Other" }
+  ];
+}
+const locationFields = [
+  { k:"areaType", l:"Area Type", t:"select", o:O.area, req:true },
+  { k:"location", l:"School Location (Town / Community)", t:"text", req:true },
+  { k:"gps", l:"GhanaPOST GPS Address", t:"gps", req:true, h:"Just type the letters and numbers — the dashes are added for you." }
+];
+
+const FORMS = {
+  basic: {
+    label:"Basic Schools (KG, Primary & JHS)",
+    sections:[
+      { id:"ident", chip:"School", title:"School Identification", sub:"Basic details of the school.", tone:"t-red", icon:"school",
+        fields: identFields(O.basicLevel) },
+      { id:"head", chip:"Headteacher", title:"Headteacher", sub:"Head of the school. These details are used to verify edits.", tone:"t-blue", icon:"user",
+        fields: person("head","Headteacher Details",{req:true,email:true,dob:true}) },
+      { id:"asst", chip:"Assistant Heads", title:"Assistant Heads", sub:"Shown according to the level selected. Leave blank if the position is vacant.", tone:"t-gold", icon:"users",
+        fields: [
+          ...person("akg","Assistant Head — KG",{show:d=>has(d.level,"KG")}),
+          ...person("apri","Assistant Head — Primary",{show:d=>has(d.level,"Primary")}),
+          ...person("ajhs","Assistant Head — JHS",{show:d=>has(d.level,"JHS")}),
+          { note:"Select the school's Level in Section 1 to see the relevant Assistant Head positions.", show:d=>!d.level }
+        ] },
+      { id:"loc", chip:"Location", title:"School Location", sub:"Where the school is situated.", tone:"t-green", icon:"pin", fields: locationFields }
+    ]
+  },
+  second: {
+    label:"Second Cycle Schools (SHS, SHTS, TVET & STEM)",
+    sections:[
+      { id:"ident", chip:"School", title:"School Identification", sub:"Basic details of the school.", tone:"t-red", icon:"school",
+        fields: identFields(O.secondLevel, [{ k:"residence", l:"Residential Status", t:"select", o:O.residence, req:true, h:"Determines whether Asst. Head (Domestics) is required." }]) },
+      { id:"head", chip:"Head", title:"Headmaster / Headmistress", sub:"Head of the school. These details are used to verify edits.", tone:"t-blue", icon:"user",
+        fields: person("head","Headmaster / Headmistress Details",{req:true,email:true,dob:true}) },
+      { id:"officers", chip:"Officers", title:"Data Officer & Community Liaison", sub:"Contact persons for data and community matters.", tone:"t-plum", icon:"clip",
+        fields: [
+          ...person("do","Data Officer",{req:true,email:true}),
+          { sub:"Community Liaison Officer" },
+          { k:"clo_name", l:"Full Name", t:"text", req:true },
+          { k:"clo_phone", l:"Mobile Number", t:"tel", req:true }
+        ] },
+      { id:"asst", chip:"Assistant Heads", title:"Assistant Heads", sub:"Leave blank if a position is vacant.", tone:"t-gold", icon:"users",
+        fields: [
+          ...person("ahadm","Assistant Head — Administration"),
+          ...person("ahacd","Assistant Head — Academics"),
+          ...person("ahdom","Assistant Head — Domestics (boarding schools only)",{show:d=>d.residence && d.residence!=="Day Only"})
+        ] },
+      { id:"loc", chip:"Location", title:"School Location", sub:"Where the school is situated.", tone:"t-green", icon:"pin", fields: locationFields }
+    ]
+  }
+};
+
+/* =========================================================
+   VALIDATION
+   ========================================================= */
+const RX = {
+  email:/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+  tel:/^0\d{9}$/,
+  emis:/^\d{4,}$/,
+  gps:/^[A-Z]{2}-\d{3,4}-\d{3,5}$/
+};
+function check(f, v){
+  if (!v) return f.req ? "This field is required." : "";
+  switch (f.t){
+    case "email": return RX.email.test(v) ? "" : "Enter a valid email address.";
+    case "tel": return RX.tel.test(v) ? "" : "Enter a 10-digit number starting with 0 (e.g. 0244123456).";
+    case "emis": return RX.emis.test(v) ? "" : "Numbers only (at least 4 digits).";
+    case "gps": return RX.gps.test(v) ? "" : "Format: AK-0039-5028";
+    case "staff": return v.length >= 3 ? "" : "Must be at least 3 characters.";
+    case "dob": {
+      const y = +v.slice(0,4); const now = new Date().getFullYear();
+      return (y >= now-70 && y <= now-18) ? "" : "Enter a valid date of birth.";
+    }
+  }
+  return "";
+}
+
+/* =========================================================
+   STATE & RENDER
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const state = { type:"basic", data:{}, touched:{}, mode:"new", cred:null, ref:"", lastRecord:null };
+const draftKey = () => "schoolReturnDraft_" + CONFIG.YEAR + "_" + state.type;
+const allFields = () => FORMS[state.type].sections.flatMap(s => s.fields.filter(f => f.k));
+const visible = f => !f.show || f.show(state.data);
+
+function render(){
+  const form = FORMS[state.type];
+  const html = form.sections.map((s, i) => `
+    <section class="section ${s.tone}" id="sec-${s.id}" data-sec="${s.id}">
+      <div class="sec-head">
+        <div class="sec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS[s.icon]}</svg><em>${i+1}</em></div>
+        <div><h2>${s.title}</h2><p>${s.sub}</p></div>
+      </div>
+      <div class="sec-body"><div class="grid">${s.fields.map(fieldHtml).join("")}</div></div>
+    </section>`).join("");
+  $("#form").innerHTML = html;
+  $("#chips").innerHTML = form.sections.map(s =>
+    `<button type="button" class="chip" data-go="${s.id}">${s.chip} <i id="cp-${s.id}">0%</i></button>`).join("");
+  // fill values
+  allFields().forEach(f => {
+    const el = document.getElementById("in-"+f.k);
+    if (!el) return;
+    if (f.t === "fixed") state.data[f.k] = f.v;
+    el.value = state.data[f.k] ?? (f.t==="fixed" ? f.v : "");
+  });
+  if (state.mode === "update") { const e = $("#in-emisCode"); e.readOnly = true; }
+  refresh();
+}
+
+let subIdx = 0;
+function fieldHtml(f){
+  if (f.sub) return `<div class="subhead" style="grid-column:1/-1" data-show="${++subIdx}">${esc(f.sub)}</div>`;
+  if (f.note) return `<div class="note" style="grid-column:1/-1" data-note="1">${esc(f.note)}</div>`;
+  const req = f.req ? '<span class="req">*</span>' : "";
+  let input;
+  if (f.t === "select") {
+    input = `<select id="in-${f.k}" name="${f.k}"><option value="">— Select —</option>${f.o.map(o=>`<option>${esc(o)}</option>`).join("")}</select>`;
+  } else {
+    const attrs = {
+      text:'type="text"', staff:'type="text" autocapitalize="characters"', email:'type="email" inputmode="email"',
+      tel:'type="tel" inputmode="numeric" placeholder="e.g. 0244123456"',
+      emis:'type="text" inputmode="numeric" placeholder="Numbers only"', gps:'type="text" placeholder="e.g. AK-0039-5028" maxlength="16"',
+      dob:'type="date"', fixed:'type="text" readonly'
+    }[f.t] || 'type="text"';
+    input = `<input id="in-${f.k}" name="${f.k}" ${attrs}>`;
+  }
+  return `<div class="f ${f.cls||""}" data-k="${f.k}">
+    <label for="in-${f.k}">${esc(f.l)}${req}</label>${input}
+    ${f.h ? `<div class="hint">${esc(f.h)}</div>` : ""}<div class="err"></div></div>`;
+}
+
+function refresh(){
+  const form = FORMS[state.type];
+  let totReq = 0, totOk = 0;
+  form.sections.forEach(s => {
+    let r = 0, ok = 0, lastSub = null, subHasVisible = false;
+    const secEl = document.getElementById("sec-"+s.id);
+    const subs = secEl.querySelectorAll(".subhead"); let si = 0;
+    const notes = secEl.querySelectorAll("[data-note]"); let ni = 0;
+    s.fields.forEach(f => {
+      if (f.sub) { subs[si++].style.display = visible(f) ? "" : "none"; return; }
+      if (f.note) { notes[ni++].style.display = visible(f) ? "" : "none"; return; }
+      const wrap = secEl.querySelector(`.f[data-k="${f.k}"]`);
+      const show = visible(f);
+      wrap.classList.toggle("hide", !show);
+      if (!show) { wrap.classList.remove("bad","good"); return; }
+      const v = (state.data[f.k]||"").trim();
+      const err = check(f, v);
+      if (f.req) { r++; if (!err) ok++; }
+      else if (v) { r++; if (!err) ok++; }  // optional-but-filled must be valid
+      const t = state.touched[f.k];
+      wrap.classList.toggle("bad", !!(t && err));
+      wrap.classList.toggle("good", !!(v && !err));
+      wrap.querySelector(".err").textContent = t ? err : "";
+    });
+    const pct = r ? Math.round(ok/r*100) : 100;
+    const chip = document.querySelector(`.chip[data-go="${s.id}"]`);
+    document.getElementById("cp-"+s.id).textContent = pct + "%";
+    chip.classList.toggle("done", pct === 100);
+    totReq += r; totOk += ok;
+  });
+  const pct = totReq ? Math.round(totOk/totReq*100) : 0;
+  $("#fill").style.width = pct + "%"; $("#pct").textContent = pct + "%";
+  $("#submitBtn").classList.toggle("ready", pct === 100);
+  return pct === 100;
+}
+
+/* input handling */
+$("#form").addEventListener("input", e => {
+  const el = e.target; const k = el.name; if (!k) return;
+  const f = allFields().find(x => x.k === k);
+  let v = el.value;
+  if (f.t === "tel") v = v.replace(/\D/g,"").slice(0,10);
+  if (f.t === "emis") v = v.replace(/\D/g,"");
+  if (f.t === "staff") v = v.toUpperCase();
+  if (f.t === "gps") v = fmtGps(v);
+  if (v !== el.value) el.value = v;
+  state.data[k] = v;
+  if (el.tagName === "SELECT") state.touched[k] = true;
+  saveDraft(); refresh();
+});
+$("#form").addEventListener("focusout", e => {
+  const k = e.target.name; if (!k) return;
+  state.touched[k] = true;
+  if (e.target.value !== e.target.value.trim()) { e.target.value = e.target.value.trim(); state.data[k] = e.target.value; }
+  refresh();
+});
+function fmtGps(v){
+  const s = v.toUpperCase().replace(/[^A-Z0-9]/g,"");
+  const L = s.slice(0,2).replace(/[^A-Z]/g,""), D = s.slice(L.length).replace(/\D/g,"");
+  if (L.length < 2) return L;
+  if (!D) return L;
+  // XX-NNNN-NNNN : first block up to 4 digits
+  const a = D.slice(0,4), b = D.slice(4,9);
+  return L + "-" + a + (b ? "-" + b : "");
+}
+
+/* chips scroll + active */
+$("#chips").addEventListener("click", e => {
+  const c = e.target.closest(".chip"); if (!c) return;
+  document.getElementById("sec-"+c.dataset.go).scrollIntoView({behavior:"smooth"});
+});
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      $$(".chip").forEach(c => c.classList.toggle("active", c.dataset.go === en.target.dataset.sec));
+    }
+  });
+}, { rootMargin:"-40% 0px -55% 0px" });
+const observe = () => { io.disconnect(); $$(".section").forEach(s => io.observe(s)); };
+
+/* type switch */
+$("#chooser").addEventListener("click", e => {
+  const b = e.target.closest(".choice"); if (!b || b.dataset.type === state.type) return;
+  if (state.mode === "update" && !confirm("Leave edit mode? Unsaved changes will be lost.")) return;
+  switchType(b.dataset.type);
+});
+function switchType(type, data){
+  state.type = type; state.touched = {};
+  if (!data) { exitEdit(false); state.data = store.get(draftKey()) || {}; }
+  else state.data = data;
+  $$(".choice").forEach(c => c.classList.toggle("on", c.dataset.type === type));
+  subIdx = 0; render(); observe();
+}
+
+/* drafts */
+function saveDraft(){ if (state.mode === "new") store.set(draftKey(), state.data); }
+
+/* =========================================================
+   API
+   ========================================================= */
+async function api(payload){
+  if (!CONFIG.API_URL) throw new Error("The form is not connected yet. The administrator must set CONFIG.API_URL.");
+  const res = await fetch(CONFIG.API_URL, { method:"POST", body: JSON.stringify(payload) });
+  if (!res.ok) throw new Error("Network error (" + res.status + "). Please try again.");
+  return res.json();
+}
+async function loadStats(){
+  if (!CONFIG.API_URL) { $("#countBadge").textContent = "0"; return null; }
+  try {
+    const r = await fetch(CONFIG.API_URL + "?action=stats").then(r => r.json());
+    if (r.ok) { $("#countBadge").textContent = r.basic + r.second; statsCache = r; }
+    return r;
+  } catch(e){ return null; }
+}
+let statsCache = null;
+
+/* submit / update */
+$("#submitBtn").addEventListener("click", async () => {
+  allFields().forEach(f => { if (visible(f)) state.touched[f.k] = true; });
+  if (!refresh()) {
+    const bad = document.querySelector(".f.bad");
+    toast("Some fields need attention. Please check the fields marked in red.");
+    if (bad) { bad.scrollIntoView({behavior:"smooth", block:"center"}); bad.querySelector("input,select")?.focus({preventScroll:true}); }
+    return;
+  }
+  const data = {};
+  allFields().forEach(f => { data[f.k] = visible(f) ? (state.data[f.k]||"").trim() : ""; });
+  const btn = $("#submitBtn"); const lbl = $("#submitLbl").textContent;
+  btn.disabled = true; $("#submitLbl").innerHTML = '<span class="spin"></span>';
+  try {
+    const payload = state.mode === "update"
+      ? { action:"update", type:state.type, cred:state.cred, data }
+      : { action:"submit", type:state.type, data };
+    const r = await api(payload);
+    if (!r.ok) throw new Error(r.error || "Submission failed.");
+    const wasUpdate = state.mode === "update";
+    store.del(draftKey());
+    state.lastRecord = { type:state.type, rec:r.record };
+    $("#doneTitle").textContent = wasUpdate ? "Return updated" : "Return submitted";
+    $("#doneSchool").textContent = r.record.schoolName;
+    $("#doneRef").textContent = r.record.refId;
+    open("#mDone");
+    exitEdit(false); state.data = {}; state.touched = {}; subIdx = 0; render(); observe();
+    window.scrollTo({top:0});
+    loadStats();
+  } catch(err){
+    toast(err.message, 6000);
+  } finally {
+    btn.disabled = false; $("#submitLbl").textContent = state.mode==="update" ? "Update Return" : lbl.replace("Update","Submit");
+    $("#submitLbl").textContent = state.mode==="update" ? "Update Return" : "Submit Return";
+  }
+});
+$("#donePdf").addEventListener("click", () => state.lastRecord && makePdf(state.lastRecord.type, state.lastRecord.rec));
+
+/* verify / edit */
+let verified = null;
+$("#btnEdit").addEventListener("click", () => {
+  $("#vType").value = state.type; verified = null;
+  $("#vAfter").hidden = true; $("#vBtns").hidden = false; msg("#vMsg");
+  open("#mVerify"); setTimeout(()=>$("#vEmis").focus(),50);
+});
+$("#vEmis").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g,""));
+$("#vStaff").addEventListener("input", e => e.target.value = e.target.value.toUpperCase());
+$("#vGo").addEventListener("click", async () => {
+  const cred = { emisCode:$("#vEmis").value.trim(), staffId:$("#vStaff").value.trim(), dob:$("#vDob").value };
+  if (!cred.emisCode || !cred.staffId || !cred.dob) return msg("#vMsg","Please fill in all three fields.","err");
+  const b = $("#vGo"); b.disabled = true; b.innerHTML = '<span class="spin"></span> Checking…';
+  try {
+    const type = $("#vType").value;
+    const r = await api({ action:"verify", type, cred });
+    if (!r.ok) throw new Error(r.error);
+    verified = { type, cred, rec:r.record };
+    msg("#vMsg", "Verified: " + r.record.schoolName + " (" + r.record.refId + ")", "ok");
+    $("#vBtns").hidden = true; $("#vAfter").hidden = false;
+  } catch(err){ msg("#vMsg", err.message, "err"); }
+  finally { b.disabled = false; b.textContent = "Verify"; }
+});
+$("#vPdfBtn").addEventListener("click", () => verified && makePdf(verified.type, verified.rec));
+$("#vEditBtn").addEventListener("click", () => {
+  if (!verified) return;
+  const data = {};
+  FORMS[verified.type].sections.flatMap(s=>s.fields).filter(f=>f.k).forEach(f => data[f.k] = verified.rec[f.k] || "");
+  state.mode = "update"; state.cred = verified.cred; state.ref = verified.rec.refId;
+  switchType(verified.type, data);
+  $("#editRef").textContent = verified.rec.schoolName + " · " + verified.rec.refId;
+  $("#editBar").classList.add("show"); $("#submitLbl").textContent = "Update Return";
+  close("#mVerify"); toast("Return loaded. Make your changes and press Update Return.");
+  $("#editBar").scrollIntoView({behavior:"smooth", block:"center"});
+});
+$("#cancelEdit").addEventListener("click", () => { exitEdit(true); });
+function exitEdit(rerender){
+  const was = state.mode === "update";
+  state.mode = "new"; state.cred = null; state.ref = "";
+  $("#editBar").classList.remove("show"); $("#submitLbl").textContent = "Submit Return";
+  if (rerender && was) { state.data = store.get(draftKey()) || {}; state.touched = {}; subIdx = 0; render(); observe(); }
+}
+
+/* submitted list */
+let listFilter = "all";
+$("#btnList").addEventListener("click", async () => {
+  open("#mList"); $("#listBody").textContent = "Loading…";
+  const r = await loadStats();
+  if (!r) { $("#listBody").innerHTML = "<p>Could not load the list" + (CONFIG.API_URL ? ". Check your connection." : " — the form is not connected yet.") + "</p>"; return; }
+  drawList();
+});
+$("#listTabs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  listFilter = b.dataset.f; $$("#listTabs button").forEach(x => x.classList.toggle("on", x === b)); drawList();
+});
+$("#listSearch").addEventListener("input", drawList);
+function drawList(){
+  if (!statsCache) return;
+  const q = $("#listSearch").value.toLowerCase();
+  const rows = statsCache.schools
+    .filter(s => listFilter === "all" || s.type === listFilter)
+    .filter(s => !q || (s.name+" "+s.circuit).toLowerCase().includes(q))
+    .sort((a,b) => (a.circuit+a.name).localeCompare(b.circuit+b.name));
+  $("#listBody").innerHTML = `<p style="margin:0 0 10px;color:var(--muted)">Basic: <b>${statsCache.basic}</b> · Second Cycle: <b>${statsCache.second}</b> · Showing ${rows.length}</p>` +
+    (rows.length ? `<div style="max-height:55vh;overflow:auto"><table class="list"><thead><tr><th>#</th><th>School</th><th>Circuit</th><th>Level</th><th>Last updated</th></tr></thead><tbody>` +
+    rows.map((s,i) => `<tr><td>${i+1}</td><td>${esc(s.name)}</td><td>${esc(s.circuit)}</td><td>${esc(s.level)}</td><td>${esc(s.updated)}</td></tr>`).join("") +
+    `</tbody></table></div>` : "<p>No schools found.</p>");
+}
+
+/* =========================================================
+   PDF
+   ========================================================= */
+let logoData = null;
+(function loadLogo(){
+  const img = new Image();
+  img.onload = () => { try{ const c=document.createElement("canvas"); c.width=img.width; c.height=img.height; c.getContext("2d").drawImage(img,0,0); logoData=c.toDataURL("image/png"); }catch(e){} };
+  img.src = "logo.png";
+})();
+
+function makePdf(type, rec){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:"mm", format:"a4" });
+  const W = doc.internal.pageSize.getWidth();
+  const navy = [16,33,63], gold = [201,161,59];
+
+  doc.setFillColor(...navy); doc.rect(0,0,W,38,"F");
+  if (logoData) { try{ doc.addImage(logoData,"PNG",12,6,26,26); }catch(e){} }
+  doc.setTextColor(...gold); doc.setFont("helvetica","bold"); doc.setFontSize(11);
+  doc.text("GHANA EDUCATION SERVICE", W/2, 12, {align:"center"});
+  doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont("helvetica","normal");
+  doc.text(CONFIG.DIRECTORATE, W/2, 18, {align:"center"});
+  doc.setFont("helvetica","bold"); doc.setFontSize(15);
+  doc.text("School Statistics Return " + CONFIG.YEAR, W/2, 27, {align:"center"});
+  doc.setFontSize(10); doc.setFont("helvetica","normal");
+  doc.text(FORMS[type].label, W/2, 33, {align:"center"});
+
+  doc.setTextColor(30,36,51); doc.setFontSize(10);
+  doc.autoTable({
+    startY: 44, theme:"plain", styles:{fontSize:10, cellPadding:1.6},
+    body: [
+      ["Reference No.", rec.refId, "School EMIS Code", rec.emisCode],
+      ["First submitted", rec.submittedAt + " GMT", "Last updated", rec.lastUpdated + " GMT"],
+      ["Times edited", rec.editCount || "0", "", ""]
+    ],
+    columnStyles:{0:{fontStyle:"bold",textColor:navy,cellWidth:34},2:{fontStyle:"bold",textColor:navy,cellWidth:36}}
+  });
+
+  let y = doc.lastAutoTable.finalY + 4;
+  const data = rec;
+  FORMS[type].sections.forEach((s, i) => {
+    const rows = []; let group = "";
+    s.fields.forEach(f => {
+      if (f.note) return;
+      if (f.show && !f.show(data)) return;
+      if (f.sub) { group = f.sub; rows.push([{content:f.sub, colSpan:2, styles:{fontStyle:"bold", fillColor:[251,243,222], textColor:[110,80,13]}}]); return; }
+      if (f.t === "dob") return; // never print DOB
+      rows.push([f.l, data[f.k] || "—"]);
+    });
+    doc.autoTable({
+      startY: y,
+      head: [[{content:(i+1) + ". " + s.title, colSpan:2}]],
+      body: rows,
+      theme:"grid",
+      headStyles:{fillColor:navy, textColor:255, fontStyle:"bold", fontSize:11},
+      styles:{fontSize:10, cellPadding:2.2, lineColor:[227,220,205], lineWidth:.2, textColor:[30,36,51]},
+      columnStyles:{0:{cellWidth:62, fontStyle:"bold", textColor:[27,50,97]}},
+      alternateRowStyles:{fillColor:[252,250,246]},
+      margin:{left:14, right:14}
+    });
+    y = doc.lastAutoTable.finalY + 5;
+  });
+
+  // signature block
+  if (y > 250) { doc.addPage(); y = 20; }
+  doc.setFontSize(10); doc.setTextColor(30,36,51);
+  doc.text("I certify that the information provided above is accurate.", 14, y + 6);
+  doc.line(14, y + 24, 90, y + 24); doc.line(120, y + 24, 196, y + 24);
+  doc.text("Signature of Head & Stamp", 14, y + 29); doc.text("Date", 120, y + 29);
+
+  const pages = doc.getNumberOfPages();
+  for (let p = 1; p <= pages; p++) {
+    doc.setPage(p); doc.setFontSize(8); doc.setTextColor(120);
+    doc.text("Generated " + new Date().toLocaleString("en-GB") + " · " + rec.refId, 14, 290);
+    doc.text("Page " + p + " of " + pages, W - 14, 290, {align:"right"});
+  }
+  const safe = (rec.schoolName || "School").replace(/[^A-Za-z0-9]+/g,"_").slice(0,50);
+  doc.save(safe + "_Return_" + CONFIG.YEAR.replace("/","-") + ".pdf");
+}
+
+/* =========================================================
+   UI HELPERS & INIT
+   ========================================================= */
+function open(s){ $(s).classList.add("show"); }
+function close(s){ $(s).classList.remove("show"); }
+$$(".modal").forEach(m => m.addEventListener("click", e => { if (e.target === m || e.target.closest("[data-close]")) m.classList.remove("show"); }));
+document.addEventListener("keydown", e => { if (e.key === "Escape") $$(".modal.show").forEach(m => m.classList.remove("show")); });
+function msg(sel, text, kind){ const m=$(sel); m.className = "msg" + (text ? " show " + kind : ""); m.textContent = text || ""; }
+let tt; function toast(t, ms){ const el=$("#toast"); el.textContent=t; el.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("show"), ms||3500); }
+
+function tick(){
+  const d = new Date();
+  $("#clock").textContent = d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"}) + " · " + d.toLocaleTimeString("en-US");
+}
+$("#yearLbl").textContent = CONFIG.YEAR;
+$("#dirName").textContent = CONFIG.DIRECTORATE;
+$("#footNote").textContent = CONFIG.CONTACT;
+if (!CONFIG.API_URL) $("#setupWarn").hidden = false;
+tick(); setInterval(tick, 1000);
+state.data = store.get(draftKey()) || {};
+render(); observe(); loadStats();
+</script>
+</body>
+</html>
